@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src *; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'; img-src * data: 'unsafe-inline'; connect-src * 'unsafe-inline'; frame-src *;">
+
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src * gap://ready file:; style-src 'self' 'unsafe-inline' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-analytics.js"></script>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css">
+
+    <script src="js/jquery.js"></script>
+    <script src="js/jquery.mobile-1.4.5.min.js"></script>
+
+</head>
+
+<body>
+    <div class="app">
+        <p>Please make sure enter your business name to test printer.</p>
+        <div id="deviceready" class="blink">
+            <p class="event listening">Connection to bluetooth printer</p>
+
+
+        </div><br>
+        <button id="openPos" onclick="openPos()">Open Pos</button><br>
+
+        <ul style="list-style:none; margin-left:-40px;">
+            <li> <select id="select">
+                    <option>Select Device</option>
+                </select></li>
+
+            <li><button id="connect-btn">Connect</button></li>
+            <li><button id="status-btn">Status</button></li>
+            <li>
+                <h2 id="business-name"></h2>
+                <p id="business-address"></p>
+                <p id="business-contact"></p>
+                <input type="text" id="businessNameInput" placeholder="Business Name">
+                <button type="button" onclick="saveBusinessName()">Save Business Name</button>
+            </li>
+            <li>
+                <input type="text" id="businessAddressInput" placeholder="Business Address">
+                <button type="button" onclick="saveBusinessAddress()">Save Address</button>
+            </li>
+            <li>
+                <input type="text" id="businessContactInput" placeholder="Contact Number">
+                <button type="button" onclick="saveBusinessContact()">Save Contact</button>
+            </li>
+            <li>
+                <button id="print-btn">Test Print</button><br></br>
+            </li>
+        </ul>
+
+
+
+
+
+
+        <textarea style="display:none;" rows="3" cols="10" id="txtBase64" placeholder="data:image/png;base64,">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJ8AAACACAYAAAAVm7uuAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAA9NSURBVHgB7Z1PUBRXHsd/PZqqVNQwe7NWg7M3AoWSm0bN4ikYsBZPkWBKcgkaD5rDojGpZdgqQXPRbKlrTsCCxhy2JIvrpjYHWI273ATMwVsG97BeNg6n1aowb3/fN/3G5ziDA/Q0/WZ+n6q2e6aHQbq//fv3/hEJgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiAEhkfCcyQVxXmX4K2JMvo4nuEtFqMa/YEMzel9jFL8L7Z00qNpEpaEiI+02JoV0a8JYuNj3sdpOWQFOM0X9RvsWZApEopSteJLZkV2SClqp0XEFvcS2T0lcu89prTe0ipFi+LRpLdAw7SGJkWIz1NV4oM7ZQt3jK3bccoTHESWYD1uZOO3kbZpsdmCKwZE+JAN3kOa8fe8qQIe2KMxvthfsAgnSdBUhfhYdIlMhpKeR78hS3QJr5nq2PDV8dulCK1U0mzkUqyxaTZ6KTWZfzrlZagvuZaGqMqpaPEVsnQv8267d4y281svLzO0WwpGiJOqTx9bpPhh2F/NiUrFio+F18Xx3DnyRQfLtt07zk71UCiiK8Q0G7vnROjREN+EvmqMCStOfL61u+5nraFbulIoIMKqdMUVJT6/ZDLIwkvgNUTXTMlFRTc3N0dbtmyhsEGiMkXntQhzeHS+z6OPqUqoGPH1KTqWUXw3Keti271Bnb2+iBs3blBbWxutFrB+Q2rPUyvo6Trh/mpwwzGqAHo5tjPCQwbb5U2UJDzwYG6OVhM8KIe9uzoe1Shq4lh1IqkCTL8jivPiY+EN+tmsdrNdNLGkssnt27dptUFY0MK5UbPXa95K+AJsogrGafH5wuvCMW5cS9b4LYmamhq6NztLUQDxKcIFP0ateAE6Kz64WiM83DDcuOVyKwLWz9DEfxLCBl+A8Up2wU6Kj29Gr3G1EF5TVoPLoiYej4zlM6CJrxoE6Jz4kNXyzUjiGK52JcIDcLvIeKMGBNjinTMvE6hd+l29KganxKfbaP2sFsJbias1QHzz8/OrnvUWAg9WToDIgjnaoArCGfH5LRcTOEY5JQjhgXg8a0yiFPfZoGXGKsMcT2a7gFUEzohPP/Vs+XQBmZPcoIDlA/fu3aOo0sx/+kY/6eWQY7BS4j8nxKfLDX6CATcUZPcnI74b4+MUVZB4HPCuP01AiM5RBeCE+HRHAabJ69L974LEiO/Bgwc69osqeOByRWh2vX5PbKeJvPjQNcq42+YyxNtxX3wgCq0di4H4z3a/5DiRF5/J8Jq9ZKDuthBzEcx487HLL8kFOk4OE+leLX6H0EGI7rj3I5WLDevX6/2ePXsokUgs+tlMJqMvWs/Jk/Taa6/RaoBeMKnsUJC059Gvkh6lyUHWUoSxrV4Y/PPOHZqamip6XvGT8OTJE73f29q6auJD7DeUHRsSpwUdBA+Rg0RWfL7V07Eeur6Xk9otW3SR+d2ODkoU6Vg6xwnJn4aHteXbUltLDQ0NtFog+sUG66fW6IszREJw9GboLm/qrhpS5aa+vl6tX7dO3bp1q+D5VCql6l9/Xa175RVVX1enX682P6oJheuDzdXMN5IJh19EbUJdq06PdiwvptwCi5ZPOp2mjgMHdDKCzPjmt9+uSrf7fMwYY8DG2MlWj2hmu5lsFlfntYcy6Mcut+QD4c3OzkZKeAZcH8BJxyEXOx1EUnwqljV35Y71DMby1eYJ63B3d672d+bzz2nr1q0UJbbTMXMI4TnX6TRy4vOb0nSikQgplKkpYPn6+/tpdHRUH59l4R08eJCixsvZdg997KLrjZ7ly2SvJnquhAU6lNZa8R6E13/6tD4+deoUHT16lKKKuU7+VCBOETnxZTxffCEmcLblu3jx4jPCO/XppxRlEnpmt+yha71dIic+foK3YW9d1FBAvAc3e6KnR7+Gm4268AAe0lxStuBWySVS4tMZGz+9uJjxEB9iZLD/5iLyyRMn9Ovdu3fT5S+/JFfIlVw8t5KOqFk+ffE2euFfw7lUStf0tjY20lfXrpFLmOsV88TtLp+ML74QH2AUj02MhyLzV19/neta7wrGS3Bb+DZyiKhZvgT+CcvlQnjv7N2r23UR80WtiFwq1vVKkENESnwZ321sDOEBhouF8CBAZLudnGC4KDxgXy+XMt5IiY9jlhoKCSM8NJu5lFwUIq8J0pmYIZJdqsrtdtFsNuvPUvBHFt7ut96idITHb7wIEV8AqBBilvxms3379ulj15KMSqAi5ucrlcWazWoLdKdyibhbuYamasSXL7z81ouamtDCzbLw2MFhHFUhPrhZIzxYu0LNZq5mugYR3wrxKPh5iJFYIMEAbRzfIc4rhAvDJiuNSCUcGUXzGJaIybGDiGFMERmDfkCKm9DefvvtZz6DDgTvv/++nqvFVeuXv7gMOUKkxBdTlFYeLmZwVujVV1+l//70kz6emZl57jw6EQAUnV0lz+U684dErc43zduhoOIXWLK/cZPZyMhI0c+8xTW+KM/RUgrWw5p2aQB5tMQX4wvHxb6HAS5HBgF+9tlni34GbbuYKMhV7DU8yCGiZvkm8Y9eMjTEiTxcbd3A4KYbN8bpp8brtKmzPAlbOYmU+LDqTm+Gwy9KldTcEJS1wvdgUvDlfp9x22HUClEMRyI1MNBPnZ0Hqa1tH/1h7hxtwskMzZBDRK5t12PX8Vilm+F6X9SvDzfihx9+0JnqnTt39B6vlwqy4czCAv39u++onJi5XUxritlDtEiMsC+02T975cqofkjOnj3LT+k8/fmvo9Rw5OfsL4i5tZB05GapSi5QkjPe3hbvvD0udUnYQixFkBAeBLj2pZcKnjfiAPnCgSjOnDlDR44cocbGxkWFs1JOnjzB31WrC+Wwfnjd+1UHXVN61GS6L0a/IIeIXq8WPL2Keu+rMb2c1XLYuXOn3gxwi7aFzBfFLJdgUAP8lBMTWzjGGi3GlStXaPPmzXT48OGytQ+jDHTkyGH66KOjujQE4V29eoUuX75MEyq7SCVbkX+QsHI47ns0kImr/6lHKgxOnz6t3tyxQy2HhoYGxcJT5QKTEu3d26JmZ2f0a65VqosXL+TOn8skspMF/bzCBUlWgUi27XqKhlHru0/fUFgsp8iMbBPx1yeffELlAE2DsHiwcI2NW3W89/33t7UFBJgiLVdmWeNWvAei2bEgRmPYTashCoPlLgAzMDDAGWdnWdwthGaEV1u7hS5duoh5mHPCA9NqOHvg0WQ1rM8bGnC9cCdhuN7uDz/U8/MtBbjDDRs2KI6/VNCMjo6oN9/cwd+dUo8ePVL9/adzbtfGZZcLItulil3vF9hPZXdlZTn1PWS45bB6qN9dunSJbt68qS0dMlr8Hrhdm2kaMi43lVwrM5MGCmYvCCvx2NvSoi3fXIkzjpbL6sHCweKl04/U+Phfnkks8slZPeXugjCRtXxoIDeJR7mt31Kb165evRq41YPFw+qXsHgo39TUxJ+J72wsqwfK7xqqEYxBxdNdbutn5mTmel9Jn0d5JUirZyweyig9Pb/Vlm8xLKvn9EIwkV4KARkct3j0PfbSvZOqz14AJVDm/TJLKRYQVgmFXmP1UKJBwRdlEVgrgKYvgzmP+A3Fbvys6UMIjMV7771OLoLP8s9+7g9kL9y8bcd6vPWRw0R/DEdMr6+bnuLdwzL1GDIdA0rpSo/yiqnrQTi7du3UbawQXDxeo5vYDCiPtLa+o5OFtrY2fd5eYgs/j4FNu3bton372nRJBa8h1o6OA8/9bogODyFgMQ9LeSUEsMwT3MxgplkFDVsm7XKxjYyMLPpZLJWA1gwkHDu4RaShoT5XDkF5xCylgNcHDryrN+NCcb67+8Pca7jazZs3qQsXLuifQysLvguuF2EAPp/P9UyXWf6gfMsxCc/D8c0ELvy/1HkVJMhwjfgghMXo6OjIiaO+/nUWyKgWrF2Dg/AgzO7u7qLfA2FBuEZ0RrR4f9OmTfq9fO6qQXvdjQQJ4eEnH7rw/B++FUEBMRnxFbrpBlg7WD0jnEILwZh2WJwvljSgfLJ+/TptFW3rhmO8bz8AeG98fJxTrR9zScbvFgJaYl1YGsb94kbghgQBrI4RX09PT9HPQXjIcOE68y0krB1ElbVcvyx4HucgTCM8W5wQLVywsYDYI+uFG0aWb4RXae420tluPsk1dJ4FmEh7qWPX1H7q8iYCXSRmvkjnApOIIMNFptrfP4BOrxokG0gkUPdDhopsGAmDmftlfj77nUg65ubQCeGUnjHBBj/T2tqqW1qQcOB3IOsF36qPc9kt/849JKwuJv5DAL5SELcZy4c23mKfset6sFqwVsVcKywXNts1m2SiEDiH35HvyicySTvOc26RlxfhlOWz2E8e3Z1WQwmMdmv3gqm1zhVp44VFslszYOGK1eGAXcczoIxSrEEE5zo7nx2wjpLKpB/ecUvPx8mYWyPTSsHJuVp00xuxC+I6F4quY+oDWi4vqu3BJcKlhoktPK7n9SHcoArE2YmCUGC1BYgYcKWDzQv168u3euUGMZ4tvN+vqdzs1ulZqmwB3qcxuqzeyJ+35IUsNlsBWiPCsnp4cLB8/ZRv5OBqK1l4wPkp0nwBvsGZ4BiEhxt4P9sRuiTsDLeQEMOweg9pRj84qWxP+DSy2kp1tTYVMT8fYkDe9rO16IMA4YLhvkpxw3ZHUlt8iAXDmLUK8d1l1WSXU97gv2WSqoCKmhySrUWSbx4y4RTcF6zJNA0v6TuMAMsd68HK4f9nxXdf+MJLUZUQuUHjQaDbPjN68LleLbqO2nV3rEJz/sHtzt67p0WHhAPrcaAbFIrE5Zj+AhYOVtkKDWDtPqgWa2dTkeIzsAjbuQx4jvyG+CbqoibvUKjLqRpg6TDabPrpcIu0HqcS41Ybh6Y1C5KKFp+BRdjFIuw1ItTrc3tJvaxqOWdxR8wJt4/ZF1KWYWNLN8S7vmrvj1cV4jNAhLw7pqymKljBOq9dCzGIBQfhVjHYHYJD51cr6al6S5dPVYnPoNtJM3RcxVhxVt84dFKAALHFvYRe0wzv2RvEZAQFoWF7qGb0HtYtP8P2EMtlWI0xGhLRPUtVis+GhdjM4mhncWxTKoBgMFt3nKTsxD1jIrjiVL348klmBRjXa//G9HKOugdB/tJc/iygaf4c2uRS/Fm8nhSxCYIgCIIgCMJT/g8jyfg6J6HfagAAAABJRU5ErkJggg==
+    
+             </textarea>
+
+    </div>
+
+    <script src="cordova.js"></script>
+    <script src="js/index.js"></script>
+
+
+</body>
+
+</html>
